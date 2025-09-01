@@ -71,7 +71,6 @@ function RestaurantPage() {
         };
         setReviews((prev) => [...prev, newReview]); //Append
       }
-
     } catch (err: any) {
       console.error(err.message);
       alert(err.message);
@@ -94,7 +93,11 @@ function RestaurantPage() {
         ))}
       </div>
       {showModal && (
-        <Overlay onSubmit={handleReviewSubmit} onClose={() => setShowModal(false)} user={user}/>
+        <Overlay
+          onSubmit={handleReviewSubmit}
+          onClose={() => setShowModal(false)}
+          user={user}
+        />
       )}
     </div>
   );

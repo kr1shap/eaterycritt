@@ -12,7 +12,7 @@ function RestaurantCard(props: rProp) {
     <div
       className="bg-[#f7f7f7] shadow rounded-2xl p-4 mb-3  border-2 border-gray-950
                  flex flex-col justify-between items-start
-                 min-w-3xs w-full"
+                 min-w-3xs w-full hover:shadow-xl duration-300 hover:translate-y-1"
       onClick={props.onClick}
     >
       <span className="font-bold text-black text-md sm:text-xl">

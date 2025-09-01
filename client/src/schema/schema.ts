@@ -19,3 +19,5 @@ export type Review = {
   comment: string;
   created_at: string;
 }
+
+export type Filter = "lowest" | "highest" | "nearby" | "none";

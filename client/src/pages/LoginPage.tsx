@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 
@@ -39,7 +40,7 @@ function LoginPage(props: lProp) {
 
     if (props.type === "login") {
       if (em && p) {
-        const result = await props.onSubmit("", em, p); 
+        const result = await props.onSubmit("", em, p);
         if ("error" in result) {
           alert(result.error);
         } else {
@@ -55,17 +56,27 @@ function LoginPage(props: lProp) {
 
   return (
     <div className="flex flex-col md:flex-row justify-between gap-20">
-      <div className="flex flex-col justify-center gap-3 items-center align-middle">
-        <img
-          className="w-[200px] h-[200px] sm:w-[18vw] sm:h-[18vw]"
+      <motion.div
+        className="flex flex-col justify-center gap-3 items-center align-middle"
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1 }}
+      >
+        <motion.img
           src="../public/eaterycritlogo.png"
-        ></img>
+          className="w-[200px] h-[200px] sm:w-[18vw] sm:h-[18vw]"
+          animate={{ rotate: [-3, 3, -3] }}
+          transition={{ repeat: Infinity, duration: 2.0, ease: "easeInOut" }}
+        />
         <p className="text-5xl font-black text-[#4c531b]">EATERYCRIT</p>
-      </div>
+      </motion.div>
 
-      <form
+      <motion.form
         onSubmit={handleSubmit}
         className="flex flex-col w-full md:w-[30vw] p-6 rounded-xl shadow-lg bg-white/80 gap-4 border-2 border-[#5d5a00a6]"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, ease: "easeOut" }}
       >
         <div className="w-full flex flex-col justify-center align-middle items-center gap-10">
           <p className="w-full text-md sm:text-xl font-bold text-[#5d5a00]">
@@ -102,7 +113,7 @@ function LoginPage(props: lProp) {
             {props.type === "login" ? "Login" : "Signup"}
           </button>
         </div>
-      </form>
+      </motion.form>
     </div>
   );
 }

@@ -8,22 +8,25 @@ type rProp = {
 
 function ReviewCard(props: rProp) {
   return (
+
     <div
       className="bg-[#f5f5d3] rounded-2xl p-6 mb-4 border-2 border-gray-950
-      w-[90%] flex-col flex"
+      w-[90%] sm:flex-row flex text-left justify-between hover:shadow-xl duration-300 hover:translate-y-0.5 items-center align-middle"
     >
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col text-left justify-center">
         <span className="font-bold text-black text-md sm:text-xl text-left">
           {props.User?.name ? props.User.name : "No Username"}
         </span>
-        <span className="text-yellow-500 font-semibold text-md sm:text-xl">
-          ★  {props.ReviewInfo.rating}
-        </span>
+        <p className="text-gray-600 leading-relaxed text-[0.5rem] text-left">
+          {props.ReviewInfo.created_at}
+        </p>
+        <p className="text-gray-800 mt-3 leading-relaxed text-sm sm:text-md text-left">
+          {props.ReviewInfo.comment}
+        </p>
       </div>
-      <p className="text-gray-600 leading-relaxed text-[0.5rem] text-left">{props.ReviewInfo.created_at}</p>
-      <p className="text-gray-800 mt-3 leading-relaxed text-sm sm:text-md text-left">
-        {props.ReviewInfo.comment}
-      </p>
+        <span className="text-yellow-500 font-semibold text-3xl sm:text-5xl hover:text-yellow-600 duration-300">
+          {props.ReviewInfo.rating < 2.5 ? "☆" :  "★" } {props.ReviewInfo.rating }
+        </span>
     </div>
   );
 }

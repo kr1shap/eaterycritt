@@ -3,7 +3,7 @@ import { type User } from "../schema/schema.ts";
 
 interface fProp {
   onSubmit: (rating: number, comment: string) => Promise<void>;
-  user: User | undefined | null; // optional: current user
+  user: User | undefined | null; 
 }
 
 function ReviewForm(props: fProp) {

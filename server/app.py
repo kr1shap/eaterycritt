@@ -6,7 +6,7 @@ from models import User, Restaurant, Review
 from db import db
 from sqlalchemy import func
 from flask_bcrypt import Bcrypt
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from flask_session import Session
 from config import Config
 
@@ -14,10 +14,9 @@ from config import Config
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app, supports_credentials=True)  
+
 app.config.from_object(Config)
-
-
-CORS(app, supports_credentials=True)
 bcrypt = Bcrypt(app)
 
 server_session = Session(app)
@@ -30,6 +29,7 @@ with app.app_context():
 
 #Testing route to get all tables
 @app.route("/tables")
+@cross_origin()
 def get_tables():
     users = User.query.all()
     restaurants = Restaurant.query.all()
@@ -48,6 +48,7 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 @app.route("/signup", methods=["POST"])
+@cross_origin()
 def signup():
     data = request.get_json()
     email = data.get("email")
@@ -90,7 +91,7 @@ def logout():
     else:
         return jsonify({"message": "No active session"}), 200
     
-#TEST ENDPOINT whoami 
+#Get current auth user
 @app.route("/@me")
 @login_required
 def me():
@@ -177,6 +178,39 @@ def create_review(restaurant_id):
     
     except Exception as e:
         return jsonify({"error": str(e)}), 500  
+    
+#Add a restaurant 
+@app.route("/addRestaurant", methods=["POST"])
+# @login_required
+def create_rest(): 
+    try:
+        data = request.get_json()
+
+        name = data.get("name")
+        location = data.get("location")
+        cusisine = data.get("cuisine")
+        created_by = data.get("created_by")
+
+        if not name or not location or not cusisine or created_by:
+            return jsonify({"error": "Missing name/loc/cusine/creator"}), 400
+
+        rest = Restaurant(
+            name=name,
+            location=location,
+            cusisine=cusisine,
+            created_by=created_by
+        )
+
+        db.session.add(rest)
+        db.session.commit()
+
+        return jsonify({
+            "message": "successfully added restaurant!"
+        }), 201
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500  
+
 
 @app.route("/restaurants/<int:restaurant_id>/avgRating", methods=["GET"])
 def get_avg(restaurant_id):
