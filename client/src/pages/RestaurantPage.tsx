@@ -36,7 +36,7 @@ function RestaurantPage() {
     if (!user_id) return;
 
     getUser(user_id).then(setUser); // fetch user object by id
-  }, [user_id, reviews]);
+  }, [user_id]);
 
   useEffect(() => {
     async function fetchUsers() {
@@ -51,6 +51,10 @@ function RestaurantPage() {
     if (reviews.length > 0) {
       fetchUsers();
     }
+
+    getAvgRating(Number(id)).then((data) =>
+      setAvgRating(data.average_rating ?? 0)
+    );
   }, [reviews]);
 
   const handleReviewSubmit = async (rating: number, comment: string) => {
@@ -81,16 +85,21 @@ function RestaurantPage() {
 
   return (
     <div className="w-[100vw] min-h-[100vh] bg-[#fefefd] flex flex-col sm:flex-row items-center">
-      <div className="w-full sm:w-2/5">
+      <div
+        className="mr-6 w-full sm:w-[50%] h-[100vh] flex flex-col items-center justify-center
+                bg-gradient-to-r from-[#fefbde] to-transparent"
+      >
         <RestaurantCardL Rest={restaurant} avgR={avgRating} />
         {user && (
           <Button name="Write a review!" onClick={() => setShowModal(true)} />
         )}
       </div>
-      <div className="w-full sm:w-3/5 flex flex-col justify-center align-middle items-center">
-        {reviews.map((r) => (
-          <ReviewCard key={r.id} ReviewInfo={r} User={users[r.user_id]} />
-        ))}
+      <div className="w-full sm:w-3/5 flex flex-col items-center">
+        <div className="w-full max-h-[85vh] overflow-y-auto p-2 space-y-4">
+          {reviews.map((r) => (
+            <ReviewCard key={r.id} ReviewInfo={r} User={users[r.user_id]} />
+          ))}
+        </div>
       </div>
       {showModal && (
         <Overlay

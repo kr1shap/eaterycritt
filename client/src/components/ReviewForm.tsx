@@ -64,7 +64,7 @@ function ReviewForm(props: fProp) {
       {/* Submit button */}
       <button
         type="submit"
-        className="bg-[#ebeb9a] hover:bg-[#c6c676] text-black font-bold px-6 py-3 rounded-3xl transition
+        className="bg-[#efefa6] hover:bg-[#e0e05f] text-black font-bold px-6 py-3 rounded-3xl transition
                    self-end border-2 "
       >
         Submit Review

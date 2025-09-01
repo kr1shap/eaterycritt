@@ -11,7 +11,7 @@ import Typewriter from "typewriter-effect";
 function HomePage() {
   //usestate
   const [restaurants, setRestaurants] = useState<any[]>([]);
-  const [ratings, setRatings] = useState<Record<string, number>>({});
+  const [ratings, setRatings] = useState<Record<number, number>>({});
   const [user, setUser] = useState<User>();
   const [filter, setFilter] = useState<Filter>("none");
 
@@ -27,99 +27,130 @@ function HomePage() {
   };
 
   useEffect(() => {
-    //Set filter to none (precautionary)
     setFilter("none");
 
-    getRestaurantAll().then(async (data) => {
-      setRestaurants(data);
+    const fetchRestaurantsAndRatings = async () => {
+      try {
+        const data = await getRestaurantAll();
+        const avgDataArr = await Promise.all(
+          data.map((r: Restaurant) => getAvgRating(Number(r.id)))
+        );
 
-      const avgDataArr = await Promise.all(
-        data.map((r: Restaurant) => getAvgRating(Number(r.id)))
-      );
+        const avgRatingsDict: Record<number, number> = {};
+        data.forEach((r: Restaurant, idx: number) => {
+          const avgItem = avgDataArr[idx];
 
-      const avgRatingsDict: Record<string, number> = {};
-      data.forEach((r: Restaurant, idx: number) => {
-        avgRatingsDict[r.id] = avgDataArr[idx].average_rating ?? 0;
-      });
+          const avgVal =
+            avgItem && typeof avgItem === "object" //if type is not number
+              ? avgItem.average_rating ?? avgItem.averageRating ?? 0
+              : Number(avgItem) || 0; //zero fallback
 
-      setRatings(avgRatingsDict);
-    });
+          avgRatingsDict[Number(r.id)] = avgVal;
+        });
 
-    //get user info
-    getUser(user_id).then(setUser);
-    console.log(user);
+        // console.log("avgRatingsDict:", avgRatingsDict);
 
-    console.log(ratings);
-  }, []);
+        setRestaurants(data);
+        setRatings(avgRatingsDict);
+      } catch (err) {
+        console.error("Failed to fetch restaurants/ratings:", err);
+      }
+    };
+
+    fetchRestaurantsAndRatings();
+
+    // get user info at end
+    getUser(user_id).then(setUser).catch(console.error);
+  }, [user_id]);
 
   return (
-    <div className="w-[100vw] min-h-[100vh] bg-[#fefefd] flex flex-col items-center">
-      {/* 'User title' div */}
-      <div className="w-full pt-20 pb-30 flex flex-col justify-center items-center">
-        <motion.div
-          className="w-full flex flex-col sm:flex-row justify-center items-center gap-4"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        >
-          <p className="text-8xl font-black text-shadow-black">Welcome,</p>
-          <p className="text-8xl font-black text-shadow-black hover:text-[#676d06] transition duration-300 ease-in-out">
-            {user?.name ?? "No name"}
-          </p>
-        </motion.div>
-        <div className="text-gray-900 text-xs">
-          <Typewriter
-            options={{
-              strings: ["Hope you're doing well, today"],
-              autoStart: true,
-              loop: true,
-            }}
-          />
-        </div>
-        {/* <p className="text-gray-900 text-xs">Hope you're doing well, today.</p> */}
+    <>
+      {/* gradient background overlay */}
+      <div className="fixed inset-0 w-full h-full z-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[#fefefd]" />
+        <div
+          className="absolute inset-0"
+          style={{
+            background: `
+          radial-gradient(circle at 20% 10%, #ded03e, transparent 10%),
+          radial-gradient(circle at 70% 40%, #e6e3c5, transparent 50%),
+          radial-gradient(circle at 5% 90%, #edda0e, transparent 10%)
+        `,
+            filter: "blur(100px)",
+          }}
+        />
       </div>
-      {/* restaurants, logout stuff */}
-      <div className="w-full flex flex-col items-start justify-center px-10 gap-5 sm:flex-row">
-        <div className="w-full sm:w-2/5 flex flex-col items-center justify-center align-middle gap-6">
-          <img
-            src="../public/eaterycritlogo.png"
-            className="w-[50vw] sm:w-70 h-auto items-center align-middle mt-10"
-          />
-          <Button
-            name=" &nbsp; &nbsp; &nbsp; &nbsp;LOGOUT &nbsp; &nbsp; &nbsp; &nbsp;"
-            onClick={async () => {
-              handleLogout();
-            }}
-          />
-        </div>
-
-        <div className="w-full sm:w-3/5 flex flex-col items-center gap-6 overflow-y-scroll">
-          <p className="w-full text-black font-bold text-center text-2xl">
-            ALL RESTAURANTS
-          </p>
-          <div className="w-full flex flex-row justify-center align-middle items-center gap-10">
-            <Button name="lowest" onClick={() => setFilter("lowest")} />
-            <Button name="highest" onClick={() => setFilter("highest")} />
+      <div className=" relative z-10 w-[100vw] min-h-[100vh]  flex flex-col items-center">
+        {/* 'User title' div */}
+        <div className="w-full pt-20 pb-30 flex flex-col justify-center items-center">
+          <motion.div
+            className="w-full flex flex-col sm:flex-row justify-center items-center gap-4"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
+            <p className="text-8xl font-black text-shadow-black">Welcome,</p>
+            <p className="text-8xl font-black text-shadow-black hover:text-[#676d06] transition duration-300 ease-in-out">
+              {user?.name ?? "No name"}
+            </p>
+          </motion.div>
+          <div className="text-gray-900 text-xs">
+            <Typewriter
+              options={{
+                strings: ["Hope you're doing well, today"],
+                autoStart: true,
+                loop: true,
+              }}
+            />
           </div>
-          {restaurants
-            .sort(
-              (a: Restaurant, b: Restaurant) => filter==="lowest" ? (ratings[a.id] - ratings[b.id]) : -(ratings[a.id] - ratings[b.id])
-            )
-            .map((r) => (
-              <RestaurantCard
-                key={r.id}
-                Rest={r}
-                avgR={ratings[r.id]}
-                onClick={() =>
-                  navigate(`/restaurants/${r.id}`, {
-                    state: { user_id: user_id },
-                  })
-                }
-              />
-            ))}
+          {/* <p className="text-gray-900 text-xs">Hope you're doing well, today.</p> */}
+        </div>
+        {/* restaurants, logout stuff */}
+        <div className="w-full flex flex-col items-start justify-center px-10 gap-5 sm:flex-row">
+          <div className="w-full sm:w-2/5 flex flex-col items-center justify-center align-middle gap-6">
+            <img
+              src="../public/eaterycritlogo.png"
+              className="w-[50vw] sm:w-70 h-auto items-center align-middle mt-10"
+            />
+            <Button
+              name=" &nbsp; &nbsp; &nbsp; &nbsp;LOGOUT &nbsp; &nbsp; &nbsp; &nbsp;"
+              onClick={async () => {
+                handleLogout();
+              }}
+            />
+          </div>
+
+          <div className="w-full sm:w-3/5 flex flex-col items-center gap-6 overflow-y-scroll">
+            <p className="w-full text-black font-bold text-center text-2xl">
+              ALL RESTAURANTS
+            </p>
+            <div className="w-full flex flex-row justify-center align-middle items-center gap-10">
+              <Button name="lowest" onClick={() => setFilter("lowest")} />
+              <Button name="highest" onClick={() => setFilter("highest")} />
+            </div>
+            {restaurants
+              .sort((a: Restaurant, b: Restaurant) => {
+                const rA = ratings[a.id] ?? 0; //Fallback if hasn't loaded yet
+                const rB = ratings[b.id] ?? 0;
+
+                return filter === "lowest" ? rA - rB : rB - rA;
+              })
+              .map((r) => (
+                <RestaurantCard
+                  key={r.id}
+                  Rest={r}
+                  avgR={ratings[r.id] ?? 0}
+                  onClick={() =>
+                    navigate(`/restaurants/${r.id}`, {
+                      state: { user_id: user_id },
+                    })
+                  }
+                />
+              ))}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

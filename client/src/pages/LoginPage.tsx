@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
+import Button from "../components/Button";
 
 type lProp = {
   type: "login" | "signup";
@@ -24,6 +25,7 @@ function LoginPage(props: lProp) {
     const p = password.trim();
 
     if (props.type === "signup") {
+      console.log("signup");
       if (n && em && p) {
         const result = await props.onSubmit(n, em, p);
         if ("error" in result) {
@@ -69,6 +71,7 @@ function LoginPage(props: lProp) {
           transition={{ repeat: Infinity, duration: 2.0, ease: "easeInOut" }}
         />
         <p className="text-5xl font-black text-[#4c531b]">EATERYCRIT</p>
+        <Button dest={props.type === "signup" ? "/login" : "/signup"} name={props.type === "signup" ? "LOGIN" : "SIGNUP"} onClick={() => navigate(props.type === "signup" ? "/login" : "/signup")}/>
       </motion.div>
 
       <motion.form

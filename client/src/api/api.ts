@@ -1,6 +1,6 @@
 const API_URL = "http://127.0.0.1:5000";
 
-export async function signup(email: string, name: string, password: string) {
+export async function signup(name: string, email: string, password: string) {
   const res = await fetch(`${API_URL}/signup`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

@@ -27,6 +27,7 @@ function Overlay(props: fProp) {
             damping: 20,
             mass: 0.5,
           }}
+          className="w-full"
         >
           <ReviewForm
             onSubmit={async (rating, comment) => {

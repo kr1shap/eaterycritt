@@ -10,7 +10,7 @@
   line-height: 1.5;
   font-weight: 400;
 
-  background: linear-gradient(300deg,#fffff0,#c2c292,#ffffff);
+  background: linear-gradient(300deg,#fffff0,#ececcf,#ffffff);
   background-size: 180% 180%;
   animation: gradient-animation 18s ease infinite;
 
