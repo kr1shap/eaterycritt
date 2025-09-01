@@ -1,38 +1,32 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, session
 from dotenv import load_dotenv
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
 from models import User, Restaurant, Review
 from db import db
 from sqlalchemy import func
-import os
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
+from flask_session import Session
+from config import Config
+
 
 load_dotenv()
 
 app = Flask(__name__)
-CORS(
-    app,
-    origins="http://localhost:5173",  
-    supports_credentials=True,
-    methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Content-Type", "Authorization"]
-)
+app.config.from_object(Config)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///restaurant_reviews.db"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.secret_key = os.getenv("SECRET_KEY", "SECRET_KEY")
+
+CORS(app, supports_credentials=True)
+bcrypt = Bcrypt(app)
+
+server_session = Session(app)
+login_manager = LoginManager(app)
 
 db.init_app(app)
 
 with app.app_context():
     db.create_all()
-
-login_manager = LoginManager(app)
-bcrypt = Bcrypt(app)
-
-login_manager.login_view = "login"
 
 #Testing route to get all tables
 @app.route("/tables")
@@ -83,16 +77,29 @@ def login():
 
     user = User.query.filter_by(email=email).first()
     if user and user.check_password(password):
-        login_user(user)
+        login_user(user)  # Flask-Login handles session
         return jsonify({"message": "Logged in successfully", "user_id": user.id}), 200
-    else:
-        return jsonify({"error": "Invalid email or password"}), 401
 
-@app.route("/logout")
-@login_required
+    return jsonify({"error": "Invalid email or password"}), 401
+
+@app.route("/logout", methods=["POST"])
 def logout():
-    logout_user()
-    return jsonify({"message": "Logged out"}), 200
+    if current_user.is_authenticated:
+        logout_user()
+        return jsonify({"message": "Logged out"}), 200
+    else:
+        return jsonify({"message": "No active session"}), 200
+    
+#TEST ENDPOINT whoami 
+@app.route("/@me")
+@login_required
+def me():
+    return jsonify({
+        "id": current_user.id,
+        "name": current_user.name,
+        "email": current_user.email
+    })
+
 
 #RESTAURANT ENDPOINTS 
 
@@ -142,14 +149,14 @@ def get_restaurant_reviews(restaurant_id):
 
 #Create reviews 
 @app.route("/restaurants/<int:restaurant_id>/reviews", methods=["POST"])
-@login_required
+# @login_required
 def create_review(restaurant_id): 
     try:
         data = request.get_json()
 
         rating = data.get("rating")
         comment = data.get("comment")
-        user_id = current_user.id
+        user_id = data.get("user_id")
 
         if not rating or not comment or not user_id:
             return jsonify({"error": "Missing user_id, rating/comment"}), 400
@@ -165,12 +172,7 @@ def create_review(restaurant_id):
         db.session.commit()
 
         return jsonify({
-            "id": review.id,
-            "user_id": review.user_id,
-            "restaurant_id": review.restaurant_id,
-            "rating": review.rating,
-            "comment": review.comment,
-            "created_at": review.created_at.isoformat()
+            "message": "successfully created review"
         }), 201
     
     except Exception as e:
@@ -202,8 +204,6 @@ def get_user(user_id):
             "email": user.email,
             "name": user.name
     }), 200
-    
-
 
 if __name__ == "__main__":
-    app.run(debug=True)
+        app.run(debug=True)

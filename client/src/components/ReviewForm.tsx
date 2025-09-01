@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { type User } from "../schema/schema.ts";
 
 interface fProp {
-  onSubmit: (rating: number, comment: string) => void;
-  user: User; // optional: current user
+  onSubmit: (rating: number, comment: string) => Promise<void>;
+  user: User | undefined | null; // optional: current user
 }
 
 function ReviewForm(props: fProp) {
@@ -13,6 +13,7 @@ function ReviewForm(props: fProp) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (rating > 0 && comment.trim() !== "") {
+      console.log(rating, comment);
       props.onSubmit(rating, comment);
       setRating(0);
       setComment("");
@@ -30,7 +31,7 @@ function ReviewForm(props: fProp) {
     >
       {/* User name / heading */}
       <span className="font-bold text-black text-xl sm:text-2xl mb-2">
-        {props.user.name ? props.user.name : "Username"}'s Review
+        {props.user?.name ? props.user.name : "Username"}'s Review
       </span>
 
       {/* Rating selector */}

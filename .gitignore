@@ -28,4 +28,5 @@ server/instance/
 **/__pycache__
 **/sampleData.ts
 server/populate_db.py
-.env
+**/.env
+server/flask_session/

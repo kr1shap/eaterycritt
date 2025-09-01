@@ -8,7 +8,7 @@ type lProp = {
     email: string,
     password: string
   ) => Promise<{ error: string } | { message: string; user_id: number }>;
-}
+};
 
 function LoginPage(props: lProp) {
   const navigate = useNavigate();
@@ -21,18 +21,47 @@ function LoginPage(props: lProp) {
     const n = name.trim();
     const em = email.trim();
     const p = password.trim();
-    const result = await props.onSubmit(n, em, p);
-    
-    if ("error" in result) {
-      alert(result.error);
-    } else {
-      navigate(`/`, { state: { user_id: result.user_id } });
+
+    if (props.type === "signup") {
+      if (n && em && p) {
+        const result = await props.onSubmit(n, em, p);
+        if ("error" in result) {
+          alert(result.error);
+        } else {
+          console.log(result);
+          navigate(`/`, { state: { user_id: result.user_id } });
+        }
+      } else {
+        alert("Please fill in all fields");
+      }
+      return;
+    }
+
+    if (props.type === "login") {
+      if (em && p) {
+        const result = await props.onSubmit("", em, p); 
+        if ("error" in result) {
+          alert(result.error);
+        } else {
+          console.log(result);
+          navigate(`/`, { state: { user_id: result.user_id } });
+        }
+      } else {
+        alert("Please fill in all fields");
+      }
+      return;
     }
   };
 
   return (
     <div className="flex flex-col md:flex-row justify-between gap-20">
-      <img src="../public/eaterycritlogo.png"></img>
+      <div className="flex flex-col justify-center gap-3 items-center align-middle">
+        <img
+          className="w-[200px] h-[200px] sm:w-[18vw] sm:h-[18vw]"
+          src="../public/eaterycritlogo.png"
+        ></img>
+        <p className="text-5xl font-black text-[#4c531b]">EATERYCRIT</p>
+      </div>
 
       <form
         onSubmit={handleSubmit}
@@ -53,7 +82,7 @@ function LoginPage(props: lProp) {
               />
             )}
             <input
-                id="email"
+              id="email"
               type="email"
               placeholder="Email"
               value={email}
