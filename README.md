@@ -50,7 +50,7 @@ Made with Flask + SQLAlchemy + SQLite, along with React (TSX) + TailwindCSS + Fr
 * **Frontend:** React, TailwindCSS, Framer Motion (animations), TypewriterJS (typing effect)
 * **Backend:** Python Flask, Flask-CORS, SQLite/SQLAlchemy
 * **APIs:** AI image generation (DALL·E / Stable Diffusion) -> FUTURE IMPLEMENTATION!!!
-* **State Management:** React hooks (`useState`), dictionaries for average ratings
+* **State Management, on load:** React hooks (`useState, useEffect`)
 * **React Router:** Used React router to form a browser router, navigating between pages
 
 ---
