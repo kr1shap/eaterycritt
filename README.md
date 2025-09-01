@@ -114,4 +114,3 @@ npm run dev
 5. Enjoy smooth animations and personalized greetings.
 
 ---
-Do you want me to do that?
