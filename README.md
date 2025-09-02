@@ -4,6 +4,8 @@
 
 Made with Flask + SQLAlchemy + SQLite, along with React (TSX) + TailwindCSS + Framer Motion. Overall, I got to work with relational databases and configuring REST API endpoints to GET/POST needed data.
 
+[basic demo video](https://youtu.be/hxzhBrXAS8Q)
+
 <p align="center">
 <img width="320" height="180" alt="EATERYCRIT" src="https://github.com/user-attachments/assets/a1ee2c30-34bc-480e-8d76-cfafb7d11fbe" />
 <img width="320" height="180" alt="Welcome, krisha" src="https://github.com/user-attachments/assets/b524c324-385c-4b83-9d90-1c96c0d376a9" />
